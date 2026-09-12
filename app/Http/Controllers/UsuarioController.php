@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FiltroUsuarioRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
 {
-    public function index(Request $request)
+    public function index(FiltroUsuarioRequest $request)
     {
-        $busca = trim($request->query('busca', ''));
+        $busca = trim($request->validated('busca') ?? '');
 
         $usuarios = User::query()
             ->when($busca !== '', function ($query) use ($busca) {
