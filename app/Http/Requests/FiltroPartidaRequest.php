@@ -2,28 +2,52 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Enums\PartidaStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FiltroPartidaRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Enquanto a autenticacao (Breeze) nao esta instalada no projeto, a
+     * listagem fica aberta. Assim que o login existir, troque por:
+     *     return $this->user() !== null;
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Os dois filtros sao opcionais: sem nenhum deles, a listagem
+     * se comporta como a listagem padrao.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            //
+            'rodada' => ['nullable', 'integer', 'between:1,38'],
+            'status' => ['nullable', Rule::enum(PartidaStatus::class)],
+        ];
+    }
+
+    /** Campo vazio no formulario ("Todos") chega como "" e deve virar null. */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'rodada' => $this->input('rodada') !== '' ? $this->input('rodada') : null,
+            'status' => $this->input('status') !== '' ? $this->input('status') : null,
+        ]);
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'rodada.integer' => 'A rodada deve ser um numero.',
+            'rodada.between' => 'A rodada deve estar entre 1 e 38.',
+            'status.enum' => 'Selecione um status valido.',
         ];
     }
 }
