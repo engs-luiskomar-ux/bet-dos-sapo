@@ -6,7 +6,7 @@ Projeto inicial em Laravel 13, com Vite e Tailwind CSS.
 
 - PHP 8.3 ou superior e Composer
 - Node.js e npm
-- Extensao SQLite habilitada no PHP
+- Extensao pdo_pgsql habilitada no PHP e um banco PostgreSQL no Neon
 
 ## Preparar uma copia do repositorio
 
@@ -14,7 +14,10 @@ Projeto inicial em Laravel 13, com Vite e Tailwind CSS.
 composer install
 Copy-Item .env.example .env
 php artisan key:generate
-New-Item -ItemType File -Path database/database.sqlite -Force
+# Preencha DB_HOST, DB_DATABASE, DB_USERNAME e DB_PASSWORD no .env com os dados do Neon.
+# Mantenha DB_SSLMODE=require.
+php artisan config:clear
+php artisan db:show
 php artisan migrate
 npm.cmd ci
 npm.cmd run build
@@ -41,4 +44,4 @@ npm.cmd run build
 
 Para trabalhar em uma branch: `git switch Luis` (ou o nome correspondente).
 
-O arquivo `.env`, o banco SQLite, `vendor` e `node_modules` ficam apenas no ambiente local.
+O arquivo `.env`, `vendor` e `node_modules` ficam apenas no ambiente local. Nunca adicione a senha do Neon ao repositorio. O `.env.example` contem apenas um modelo sem credenciais.
