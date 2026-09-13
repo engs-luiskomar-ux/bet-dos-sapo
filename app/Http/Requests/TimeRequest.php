@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TimeRequest extends FormRequest
@@ -12,18 +11,18 @@ class TimeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'nome' => ['required', 'string', 'max:100'],
+            'sigla' => ['required', 'string', 'max:10'],
+            'estado' => ['required', 'string', 'size:2'],
         ];
     }
 }
