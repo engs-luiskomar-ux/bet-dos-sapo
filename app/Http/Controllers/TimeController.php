@@ -2,70 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FiltroTimeRequest;
 use App\Http\Requests\TimeRequest;
 use App\Models\Time;
-use Illuminate\Support\Facades\Gate;
 
 class TimeController extends Controller
 {
-    public function index(FiltroTimeRequest $request)
+    /**
+     * Exibe a lista de times.
+     */
+    public function index()
     {
-        Gate::authorize('viewAny', Time::class);
+        $times = Time::orderBy('nome')->paginate(10);
 
-        $query = Time::query();
-
-        /*
-         * Pesquisa por nome OU sigla
-         */
-        if ($request->filled('busca')) {
-            $busca = $request->validated('busca');
-
-            $query->where(function ($q) use ($busca) {
-                $q->where('nome', 'like', '%' . $busca . '%')
-                    ->orWhere('sigla', 'like', '%' . $busca . '%');
-            });
-        }
-
-        /*
-         * Filtro por estado
-         */
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->validated('estado'));
-        }
-
-        /*
-         * Lista de estados existentes no banco
-         */
-        $estados = Time::query()
-            ->whereNotNull('estado')
-            ->where('estado', '!=', '')
-            ->distinct()
-            ->orderBy('estado')
-            ->pluck('estado');
-
-        /*
-         * Ordenação e paginação
-         */
-        $times = $query
-            ->orderBy('nome')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('times.index', compact('times', 'estados'));
+        return view('times.index', compact('times'));
     }
 
+    /**
+     * Exibe o formulário de criação.
+     */
     public function create()
     {
-        Gate::authorize('create', Time::class);
-
         return view('times.create');
     }
 
+    /**
+     * Salva um novo time.
+     */
     public function store(TimeRequest $request)
     {
-        Gate::authorize('create', Time::class);
-
         Time::create($request->validated());
 
         return redirect()
@@ -73,24 +37,27 @@ class TimeController extends Controller
             ->with('success', 'Time cadastrado com sucesso!');
     }
 
+    /**
+     * Exibe um time específico.
+     */
     public function show(Time $time)
     {
-        Gate::authorize('view', $time);
-
         return view('times.show', compact('time'));
     }
 
+    /**
+     * Exibe o formulário de edição.
+     */
     public function edit(Time $time)
     {
-        Gate::authorize('update', $time);
-
         return view('times.edit', compact('time'));
     }
 
+    /**
+     * Atualiza um time.
+     */
     public function update(TimeRequest $request, Time $time)
     {
-        Gate::authorize('update', $time);
-
         $time->update($request->validated());
 
         return redirect()
@@ -98,10 +65,11 @@ class TimeController extends Controller
             ->with('success', 'Time atualizado com sucesso!');
     }
 
+    /**
+     * Exclui um time.
+     */
     public function destroy(Time $time)
     {
-        Gate::authorize('delete', $time);
-
         $time->delete();
 
         return redirect()
