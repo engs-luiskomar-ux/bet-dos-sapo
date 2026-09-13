@@ -27,8 +27,17 @@ class FiltroTimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'busca' => ['nullable', 'string', 'max:100'],
-            'estado' => ['nullable', 'string', 'size:2'],
+            'busca' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'estado' => [
+                'nullable',
+                'string',
+                'size:2',
+            ],
         ];
     }
 }
