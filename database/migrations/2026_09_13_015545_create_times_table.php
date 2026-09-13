@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('times', function (Blueprint $table) {
             $table->id();
+            $table->string('nome', 100);
+            $table->string('sigla', 10);
+            $table->char('estado', 2);
             $table->timestamps();
         });
     }
