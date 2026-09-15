@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ApostaRequest;
+use App\Models\Aposta;
+use App\Models\Partida;
 use App\Services\ApostaService;
 use Illuminate\Http\RedirectResponse;
-use App\Models\Aposta;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ApostaController extends Controller
 {
@@ -43,5 +45,17 @@ class ApostaController extends Controller
             'success',
             'Palpite cancelado e créditos devolvidos.'
         );
+    }
+
+    public function index(): View
+    {
+        $partidas = Partida::query()
+            ->with(['mandante', 'visitante'])
+            ->agendadas()
+            ->orderBy('rodada')
+            ->orderBy('id')
+            ->paginate(10);
+
+        return view('apostas.index', compact('partidas'));
     }
 }
