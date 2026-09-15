@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -19,5 +19,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
 });
+
+    // Partidas (João)
+    Route::get('/partidas', [PartidaController::class, 'index'])->name('partidas.index');
+    Route::get('/partidas/{partida}', [PartidaController::class, 'show'])->name('partidas.show');
 
 require __DIR__.'/auth.php';
