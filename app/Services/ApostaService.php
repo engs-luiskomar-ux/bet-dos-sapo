@@ -67,6 +67,11 @@ class ApostaService
             ]);
         });
     }
+            public function liquidar(Partida $partida): void
+        {
+            if (! $partida->estaFinalizada()) {
+                return;
+    }
             private function resultadoDaPartida(Partida $partida): string
         {
             if ($partida->gols_mandante === $partida->gols_visitante) {
