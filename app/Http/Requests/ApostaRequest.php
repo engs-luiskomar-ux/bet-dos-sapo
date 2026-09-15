@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Aposta;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ApostaRequest extends FormRequest
 {
@@ -14,15 +14,24 @@ class ApostaRequest extends FormRequest
     }
 
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'partida_id' => [
+                'required',
+                'integer',
+                'exists:partidas,id',
+            ],
+            'palpite' => [
+                'required',
+                Rule::in(array_keys(Aposta::OPCOES)),
+            ],
+            'valor' => [
+                'required',
+                'integer',
+                'min:10',
+                'max:1000',
+            ],
         ];
     }
 }
