@@ -8,13 +8,22 @@ use Illuminate\Validation\Rule;
 
 class FiltroPartidaRequest extends FormRequest
 {
-    /** Somente usuario autenticado consulta a lista de partidas. */
+    /**
+     * A autenticacao e garantida pelo middleware 'auth' na rota, que
+     * redireciona o visitante para o login. Aqui o request cuida apenas
+     * da validacao dos filtros.
+     */
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return true;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Os dois filtros sao opcionais: sem nenhum deles, a listagem
+     * se comporta como a listagem padrao.
+     *
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
