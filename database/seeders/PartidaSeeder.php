@@ -8,18 +8,14 @@ use App\Models\Time;
 use Illuminate\Database\Seeder;
 
 /**
- * Popula times da Serie A e gera as primeiras rodadas do campeonato.
+ * Popula os times da Serie A e gera o campeonato inteiro: 38 rodadas de
+ * turno e returno, com o turno ja finalizado e o returno agendado.
  *
  * Rode sozinho, sem mexer no DatabaseSeeder (que e compartilhado):
  *     php artisan db:seed --class=PartidaSeeder
  */
 class PartidaSeeder extends Seeder
 {
-    /** Quantas rodadas gerar, e quantas delas ja vem com resultado. */
-    private const RODADAS = 5;
-
-    private const RODADAS_FINALIZADAS = 3;
-
     /** @var array<int, array{nome: string, sigla: string, estado: string}> */
     private const TIMES = [
         ['nome' => 'Atletico Mineiro', 'sigla' => 'CAM', 'estado' => 'MG'],
@@ -47,10 +43,27 @@ class PartidaSeeder extends Seeder
     public function run(): void
     {
         $ids = $this->cadastrarTimes();
+        $confrontos = $this->confrontos($ids);
+        $rodadasDoTurno = $this->rodadasPorTurno(count($ids));
 
-        foreach ($this->confrontos($ids) as $confronto) {
-            $this->criarPartida($confronto);
+        $linhas = [];
+
+        foreach ($confrontos as $confronto) {
+            $linhas[] = $this->linha($confronto, $rodadasDoTurno);
         }
+
+        // Insert em lote: 380 partidas uma a uma no banco remoto demora.
+        foreach (array_chunk($linhas, 100) as $lote) {
+            Partida::insert($lote);
+        }
+    }
+
+    /** Com um numero impar de times entra um "fantasma", somando uma rodada. */
+    private function rodadasPorTurno(int $quantidadeDeTimes): int
+    {
+        return $quantidadeDeTimes % 2 === 0
+            ? $quantidadeDeTimes - 1
+            : $quantidadeDeTimes;
     }
 
     /**
@@ -70,8 +83,8 @@ class PartidaSeeder extends Seeder
     }
 
     /**
-     * Monta os confrontos pelo algoritmo round-robin do circulo: em cada
-     * rodada, todo time joga uma vez e ninguem se enfrenta duas vezes.
+     * Round-robin do circulo: no turno cada time enfrenta todos os outros uma
+     * vez; o returno repete os mesmos confrontos com o mando invertido.
      *
      * @param  array<int, int>  $times
      * @return array<int, array{rodada: int, mandante: int, visitante: int}>
@@ -83,10 +96,11 @@ class PartidaSeeder extends Seeder
         }
 
         $total = count($times);
+        $rodadasPorTurno = $total - 1;
         $jogosPorRodada = intdiv($total, 2);
         $confrontos = [];
 
-        for ($rodada = 1; $rodada <= self::RODADAS; $rodada++) {
+        for ($rodada = 1; $rodada <= $rodadasPorTurno; $rodada++) {
             for ($jogo = 0; $jogo < $jogosPorRodada; $jogo++) {
                 $mandante = $times[$jogo];
                 $visitante = $times[$total - 1 - $jogo];
@@ -105,6 +119,12 @@ class PartidaSeeder extends Seeder
                     'mandante' => $mandante,
                     'visitante' => $visitante,
                 ];
+
+                $confrontos[] = [
+                    'rodada' => $rodada + $rodadasPorTurno,
+                    'mandante' => $visitante,
+                    'visitante' => $mandante,
+                ];
             }
 
             // Rotaciona o array mantendo o primeiro time fixo.
@@ -115,26 +135,35 @@ class PartidaSeeder extends Seeder
         return $confrontos;
     }
 
-    /** @param  array{rodada: int, mandante: int, visitante: int}  $confronto */
-    private function criarPartida(array $confronto): void
+    /**
+     * @param  array{rodada: int, mandante: int, visitante: int}  $confronto
+     * @return array<string, mixed>
+     */
+    private function linha(array $confronto, int $rodadasDoTurno): array
     {
-        $finalizada = $confronto['rodada'] <= self::RODADAS_FINALIZADAS;
+        // O turno ja aconteceu; o returno esta agendado.
+        $finalizada = $confronto['rodada'] <= $rodadasDoTurno;
 
-        // Rodada 1 comeca 5 semanas atras; uma rodada por semana.
         $dataJogo = now()
-            ->subWeeks(self::RODADAS)
+            ->subWeeks($rodadasDoTurno)
             ->addWeeks($confronto['rodada'] - 1)
             ->setTime(16, 0)
             ->addHours(random_int(0, 5));
 
-        Partida::create([
+        $agora = now();
+
+        return [
             'rodada' => $confronto['rodada'],
             'time_mandante_id' => $confronto['mandante'],
             'time_visitante_id' => $confronto['visitante'],
-            'status' => $finalizada ? PartidaStatus::Finalizada : PartidaStatus::Agendada,
-            'data_jogo' => $finalizada ? $dataJogo : $dataJogo->addWeeks(self::RODADAS + 1),
+            'status' => $finalizada
+                ? PartidaStatus::Finalizada->value
+                : PartidaStatus::Agendada->value,
+            'data_jogo' => $dataJogo,
             'gols_mandante' => $finalizada ? random_int(0, 4) : null,
             'gols_visitante' => $finalizada ? random_int(0, 4) : null,
-        ]);
+            'created_at' => $agora,
+            'updated_at' => $agora,
+        ];
     }
 }
