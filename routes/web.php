@@ -21,10 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
 
     Route::resource('times', TimeController::class);
-});
 
     // Partidas (João)
     Route::get('/partidas', [PartidaController::class, 'index'])->name('partidas.index');
     Route::get('/partidas/{partida}', [PartidaController::class, 'show'])->name('partidas.show');
+});
 
 require __DIR__.'/auth.php';
