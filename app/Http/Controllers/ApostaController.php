@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ApostaRequest;
 use App\Services\ApostaService;
 use Illuminate\Http\RedirectResponse;
-
+use App\Models\Aposta;
+use Illuminate\Http\Request;
 
 class ApostaController extends Controller
 {
@@ -25,6 +26,22 @@ class ApostaController extends Controller
         return back()->with(
             'success',
             'Palpite registrado com sucesso.'
+        );
+    }
+
+    public function cancelar(
+        Request $request,
+        Aposta $aposta,
+        ApostaService $service
+        ): RedirectResponse {
+        $service->cancelar(
+            $aposta,
+            $request->user()
+        );
+
+        return back()->with(
+            'success',
+            'Palpite cancelado e créditos devolvidos.'
         );
     }
 }
