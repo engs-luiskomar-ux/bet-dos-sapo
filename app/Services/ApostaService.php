@@ -52,6 +52,19 @@ class ApostaService
                     'valor' => 'Saldo de creditos insuficiente.',
                 ]);
             }
+
+            $carteira->decrement('saldo_creditos', $valor);
+            Aposta::create([
+                'user_id' => $usuario->id,
+                'partida_id' => $partida->id,
+                'confronto' => $partida->mandante->nome
+                    .' × '
+                    .$partida->visitante->nome,
+                'palpite' => $palpite,
+                'valor' => $valor,
+                'multiplicador' =>
+                    Aposta::OPCOES[$palpite]['multiplicador'],
+            ]);
         });
     }
 }
