@@ -16,18 +16,11 @@ class PartidaSeeder extends Seeder
     public function run(): void
     {
         foreach (range(1, 4) as $rodada) {
-            Partida::factory()
-                ->count(5)
-                ->naRodada($rodada)
-                ->finalizada()
-                ->create();
+            Partida::factory()->count(5)->naRodada($rodada)->finalizada()->create();
         }
 
         foreach (range(5, 8) as $rodada) {
-            Partida::factory()
-                ->count(5)
-                ->naRodada($rodada)
-                ->create();
+            Partida::factory()->count(5)->naRodada($rodada)->create();
         }
     }
 }
