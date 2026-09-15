@@ -9,6 +9,7 @@ use App\Services\ApostaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class ApostaController extends Controller
 {
@@ -61,6 +62,18 @@ class ApostaController extends Controller
 
     public function historico(Request $request): View
     {
+        $request->validate([
+        'status' => [
+            'nullable',
+            'string',
+            Rule::in([
+                'pendente',
+                'ganha',
+                'perdida',
+                'cancelada',
+            ]),
+        ],
+    ]);
         $apostas = Aposta::query()
             ->where('user_id', $request->user()->id)
             ->latest('id')
