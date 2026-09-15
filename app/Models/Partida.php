@@ -6,13 +6,14 @@ use App\Enums\PartidaStatus;
 use Database\Factories\PartidaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table('partidas')]
-#[Fillable(['rodada', 'time_casa_id', 'time_fora_id', 'status', 'data_jogo', 'gols_casa', 'gols_fora'])]
+#[Fillable(['rodada', 'time_mandante_id', 'time_visitante_id', 'status', 'data_jogo', 'gols_mandante', 'gols_visitante'])]
 class Partida extends Model
 {
     /** @use HasFactory<PartidaFactory> */
@@ -31,21 +32,18 @@ class Partida extends Model
     |--------------------------------------------------------------------------
     | Relacionamentos
     |--------------------------------------------------------------------------
-    | Estao declarados, mas so podem ser usados quando os models das outras
-    | entregas existirem: Time e do Nelson, Aposta e do Luis. Chamar um deles
-    | antes disso gera erro de classe nao encontrada.
     */
 
     /** @return BelongsTo<Time, $this> */
-    public function timeCasa(): BelongsTo
+    public function mandante(): BelongsTo
     {
-        return $this->belongsTo(Time::class, 'time_casa_id');
+        return $this->belongsTo(Time::class, 'time_mandante_id');
     }
 
     /** @return BelongsTo<Time, $this> */
-    public function timeFora(): BelongsTo
+    public function visitante(): BelongsTo
     {
-        return $this->belongsTo(Time::class, 'time_fora_id');
+        return $this->belongsTo(Time::class, 'time_visitante_id');
     }
 
     /** @return HasMany<Aposta, $this> */
@@ -56,7 +54,26 @@ class Partida extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Apoio para as telas
+    | Scopes
+    |--------------------------------------------------------------------------
+    | O ApostaController usa Partida::query()->agendadas().
+    */
+
+    /** @param  Builder<Partida>  $query */
+    public function scopeAgendadas(Builder $query): void
+    {
+        $query->where('status', PartidaStatus::Agendada);
+    }
+
+    /** @param  Builder<Partida>  $query */
+    public function scopeFinalizadas(Builder $query): void
+    {
+        $query->where('status', PartidaStatus::Finalizada);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Apoio
     |--------------------------------------------------------------------------
     */
 
@@ -65,29 +82,34 @@ class Partida extends Model
         return $this->status === PartidaStatus::Agendada;
     }
 
+    /** Usado pelo ApostaService para bloquear e liquidar apostas. */
+    public function estaFinalizada(): bool
+    {
+        return $this->status === PartidaStatus::Finalizada;
+    }
+
     public function placar(): string
     {
-        return $this->status === PartidaStatus::Finalizada
-            ? "{$this->gols_casa} x {$this->gols_fora}"
+        return $this->estaFinalizada()
+            ? "{$this->gols_mandante} x {$this->gols_visitante}"
             : 'x';
     }
 
     /**
-     * Nome do mandante quando o model Time ja existir; ate la, mostra o id.
-     * Quando o Nelson entregar, troque as chamadas na view por
-     * $partida->timeCasa->nome e apague estes dois metodos.
+     * Nome do time quando o model Time ja estiver na main (entrega do Nelson);
+     * ate la, mostra o id para a tela nao quebrar.
      */
     public function rotuloMandante(): string
     {
-        return $this->relationLoaded('timeCasa') && $this->timeCasa
-            ? $this->timeCasa->nome
-            : "Time #{$this->time_casa_id}";
+        return $this->relationLoaded('mandante') && $this->mandante
+            ? $this->mandante->nome
+            : "Time #{$this->time_mandante_id}";
     }
 
     public function rotuloVisitante(): string
     {
-        return $this->relationLoaded('timeFora') && $this->timeFora
-            ? $this->timeFora->nome
-            : "Time #{$this->time_fora_id}";
+        return $this->relationLoaded('visitante') && $this->visitante
+            ? $this->visitante->nome
+            : "Time #{$this->time_visitante_id}";
     }
 }

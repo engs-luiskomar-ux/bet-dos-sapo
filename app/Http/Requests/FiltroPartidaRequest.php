@@ -8,22 +8,13 @@ use Illuminate\Validation\Rule;
 
 class FiltroPartidaRequest extends FormRequest
 {
-    /**
-     * Enquanto a autenticacao (Breeze) nao esta instalada no projeto, a
-     * listagem fica aberta. Assim que o login existir, troque por:
-     *     return $this->user() !== null;
-     */
+    /** Somente usuario autenticado consulta a lista de partidas. */
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
-    /**
-     * Os dois filtros sao opcionais: sem nenhum deles, a listagem
-     * se comporta como a listagem padrao.
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
