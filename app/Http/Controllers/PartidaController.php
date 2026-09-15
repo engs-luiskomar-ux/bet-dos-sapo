@@ -12,10 +12,8 @@ class PartidaController extends Controller
     public function index(FiltroPartidaRequest $request): View
     {
         $partidas = Partida::query()
-            // Quando o Nelson entregar o model Time, descomente:
-            // ->with(['timeCasa', 'timeFora'])
-            // Quando o Luis entregar o model Aposta, descomente:
-            // ->withCount('apostas')
+            ->with(['mandante', 'visitante'])
+            ->withCount('apostas')
             ->when(
                 $request->filled('rodada'),
                 fn ($query) => $query->where('rodada', $request->integer('rodada')),
@@ -34,8 +32,7 @@ class PartidaController extends Controller
 
     public function show(Partida $partida): View
     {
-        // Quando o model Aposta existir, descomente para o aviso funcionar:
-        // $partida->loadCount('apostas');
+        $partida->load(['mandante', 'visitante'])->loadCount('apostas');
 
         return view('partidas.show', compact('partida'));
     }
