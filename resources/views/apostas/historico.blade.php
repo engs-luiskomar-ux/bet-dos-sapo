@@ -24,5 +24,7 @@
                 Novo palpite
             </a>
         </div>
+
+        @include('apostas._filtros')
     </div>
 </x-app-layout>
