@@ -101,6 +101,35 @@ class ApostaService
         }
     }
 }
+
+        public function cancelar(Aposta $aposta, User $usuario): void
+            {
+                abort_unless($aposta->user_id === $usuario->id, 403);
+
+                DB::transaction(function () use ($aposta) {
+                    $partida = Partida::query()
+                        ->lockForUpdate()
+                        ->findOrFail($aposta->partida_id);
+
+                    $apostaAtual = Aposta::query()
+                        ->lockForUpdate()
+                        ->findOrFail($aposta->id);
+
+                    if (
+                        $partida->estaFinalizada()
+                        || $apostaAtual->status !== 'pendente'
+                    ) {
+                        throw ValidationException::withMessages([
+                            'aposta' =>
+                                'Só é possível cancelar um palpite pendente antes do resultado.',
+                        ]);
+                    }
+
+                    $this->devolver($apostaAtual);
+                });
+}
+
+
         public function devolver(Aposta $aposta): void
             {
                 $aposta->update([
