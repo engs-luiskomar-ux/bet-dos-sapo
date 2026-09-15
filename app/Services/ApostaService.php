@@ -67,5 +67,15 @@ class ApostaService
             ]);
         });
     }
+            private function resultadoDaPartida(Partida $partida): string
+        {
+            if ($partida->gols_mandante === $partida->gols_visitante) {
+                return 'empate';
+            }
+
+            return $partida->gols_mandante > $partida->gols_visitante
+                ? 'mandante'
+                : 'visitante';
+        }
 }
 
