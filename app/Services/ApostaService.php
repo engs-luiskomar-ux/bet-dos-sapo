@@ -72,6 +72,12 @@ class ApostaService
             if (! $partida->estaFinalizada()) {
                 return;
     }
+            $apostas = Aposta::query()
+            ->where('partida_id', $partida->id)
+            ->where('status', 'pendente')
+            ->lockForUpdate()
+            ->get();
+            
             private function resultadoDaPartida(Partida $partida): string
         {
             if ($partida->gols_mandante === $partida->gols_visitante) {
