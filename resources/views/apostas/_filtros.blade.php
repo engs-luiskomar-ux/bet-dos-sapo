@@ -18,6 +18,34 @@
                 class="mt-1 rounded-md border-gray-300 shadow-sm"
             >
                 <option value="">Todos</option>
+
+            <option
+                value="pendente"
+                @selected(request('status') === 'pendente')
+            >
+                Pendentes
+            </option>
+
+            <option
+                value="ganha"
+                @selected(request('status') === 'ganha')
+            >
+                Ganhas
+            </option>
+
+            <option
+                value="perdida"
+                @selected(request('status') === 'perdida')
+            >
+                Perdidas
+            </option>
+
+            <option
+                value="cancelada"
+                @selected(request('status') === 'cancelada')
+            >
+                Canceladas
+            </option>
             </select>
         </div>
     </div>
