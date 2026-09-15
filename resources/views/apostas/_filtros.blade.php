@@ -48,5 +48,15 @@
             </option>
             </select>
         </div>
+            <x-primary-button type="submit">
+                Filtrar
+            </x-primary-button>
+
+            <a
+                href="{{ route('apostas.historico') }}"
+                class="text-sm font-medium text-gray-600 underline"
+            >
+                Limpar
+            </a>
     </div>
 </form>
