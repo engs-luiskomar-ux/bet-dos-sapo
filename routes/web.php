@@ -3,6 +3,7 @@ use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TimeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,6 +19,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+
+    Route::resource('times', TimeController::class);
 });
 
     // Partidas (João)
