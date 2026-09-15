@@ -10,17 +10,28 @@ use Illuminate\Validation\ValidationException;
 
 class ApostaService
 {
-    public function __construct()
-    {
-        //
-    }
-
     public function registrar(
-        User  $usuario,
+        User $usuario,
         int $partidaId,
         string $palpite,
         int $valor
     ): void {
         abort_unless($usuario->role === 'torcedor', 403);
+
+        DB::transaction(function () use (
+            $usuario,
+            $partidaId,
+            $palpite,
+            $valor
+        ) {
+            $partida = Partida::query()
+                ->lockForUpdate()
+                ->findOrFail($partidaId);
+
+            $carteira = User::query()
+                ->lockForUpdate()
+                ->findOrFail($usuario->id);
+        });
     }
 }
+
