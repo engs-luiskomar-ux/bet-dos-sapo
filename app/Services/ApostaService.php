@@ -101,16 +101,26 @@ class ApostaService
         }
     }
 }
+        public function devolver(Aposta $aposta): void
+            {
+                $aposta->update([
+                    'status' => 'cancelada',
+                    'retorno' => $aposta->valor,
+                ]);
 
-            private function resultadoDaPartida(Partida $partida): string
-        {
-            if ($partida->gols_mandante === $partida->gols_visitante) {
-                return 'empate';
+                User::whereKey($aposta->user_id)
+                    ->increment('saldo_creditos', $aposta->valor);
             }
 
-            return $partida->gols_mandante > $partida->gols_visitante
-                ? 'mandante'
-                : 'visitante';
-        }
+        private function resultadoDaPartida(Partida $partida): string
+            {
+                if ($partida->gols_mandante === $partida->gols_visitante) {
+                    return 'empate';
+                }
+
+                return $partida->gols_mandante > $partida->gols_visitante
+                    ? 'mandante'
+                    : 'visitante';
+            }
 }
 
