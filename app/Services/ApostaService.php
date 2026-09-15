@@ -21,6 +21,6 @@ class ApostaService
         string $palpite,
         int $valor
     ): void {
-        abort_unless($usuario->role === 'torcedor', 403)
+        abort_unless($usuario->role === 'torcedor', 403);
     }
 }
