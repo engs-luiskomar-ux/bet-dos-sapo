@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Enums\PartidaStatus;
+use App\Models\Aposta;
 use App\Models\Partida;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,13 +13,24 @@ class FiltroPartidasTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** As rotas de partidas ficam atras do middleware auth. */
+    private function usuario(): User
+    {
+        return User::factory()->create();
+    }
+
+    public function test_visitante_sem_login_e_redirecionado(): void
+    {
+        $this->get(route('partidas.index'))->assertRedirect(route('login'));
+    }
+
     public function test_filtra_por_rodada_e_status_na_mesma_pesquisa(): void
     {
         $alvo = Partida::factory()->naRodada(5)->create();
         $outraRodada = Partida::factory()->naRodada(6)->create();
         $outroStatus = Partida::factory()->naRodada(5)->finalizada()->create();
 
-        $resposta = $this->get(route('partidas.index', [
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index', [
             'rodada' => 5,
             'status' => PartidaStatus::Agendada->value,
         ]));
@@ -37,14 +50,13 @@ class FiltroPartidasTest extends TestCase
         Partida::factory()->count(2)->create();
         $finalizada = Partida::factory()->finalizada()->create();
 
-        $resposta = $this->get(route('partidas.index', [
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index', [
             'status' => PartidaStatus::Finalizada->value,
         ]));
 
         $resposta->assertOk();
         $resposta->assertViewHas('partidas', function ($partidas) use ($finalizada) {
-            return $partidas->count() === 1
-                && $partidas->first()->is($finalizada);
+            return $partidas->count() === 1 && $partidas->first()->is($finalizada);
         });
     }
 
@@ -52,7 +64,7 @@ class FiltroPartidasTest extends TestCase
     {
         Partida::factory()->count(3)->create();
 
-        $resposta = $this->get(route('partidas.index'));
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index'));
 
         $resposta->assertOk();
         $resposta->assertViewHas('partidas', fn ($partidas) => $partidas->count() === 3);
@@ -62,7 +74,7 @@ class FiltroPartidasTest extends TestCase
     {
         Partida::factory()->naRodada(1)->create();
 
-        $resposta = $this->get(route('partidas.index', ['rodada' => 30]));
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index', ['rodada' => 30]));
 
         $resposta->assertOk();
         $resposta->assertViewHas('partidas', fn ($partidas) => $partidas->isEmpty());
@@ -71,14 +83,16 @@ class FiltroPartidasTest extends TestCase
 
     public function test_status_invalido_e_rejeitado(): void
     {
-        $resposta = $this->get(route('partidas.index', ['status' => 'inventado']));
+        $resposta = $this->actingAs($this->usuario())
+            ->get(route('partidas.index', ['status' => 'inventado']));
 
         $resposta->assertSessionHasErrors('status');
     }
 
     public function test_rodada_fora_do_intervalo_e_rejeitada(): void
     {
-        $resposta = $this->get(route('partidas.index', ['rodada' => 99]));
+        $resposta = $this->actingAs($this->usuario())
+            ->get(route('partidas.index', ['rodada' => 99]));
 
         $resposta->assertSessionHasErrors('rodada');
     }
@@ -87,7 +101,7 @@ class FiltroPartidasTest extends TestCase
     {
         Partida::factory()->count(15)->naRodada(3)->create();
 
-        $resposta = $this->get(route('partidas.index', [
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index', [
             'rodada' => 3,
             'status' => PartidaStatus::Agendada->value,
         ]));
@@ -101,7 +115,7 @@ class FiltroPartidasTest extends TestCase
     {
         $partida = Partida::factory()->finalizada()->create();
 
-        $resposta = $this->get(route('partidas.show', $partida));
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.show', $partida));
 
         $resposta->assertOk();
         $resposta->assertSee('Rodada '.$partida->rodada);
@@ -109,31 +123,53 @@ class FiltroPartidasTest extends TestCase
 
     /*
     |--------------------------------------------------------------------------
-    | Dependem do model Aposta (entrega do Luis)
+    | Aviso de historico de palpites
     |--------------------------------------------------------------------------
-    | Quando ele existir: ligue o withCount('apostas') no controller e o
-    | loadCount('apostas') no show, apague os markTestSkipped e crie a aposta
-    | com a factory do Luis.
     */
 
     public function test_exibe_aviso_quando_a_partida_tem_palpites(): void
     {
-        $this->markTestSkipped('Depende do model Aposta (entrega do Luis).');
-
         $partida = Partida::factory()->create();
-        // Aposta::factory()->create(['partida_id' => $partida->id]);
+        $this->criarAposta($partida);
 
-        $resposta = $this->get(route('partidas.show', $partida));
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.show', $partida));
 
         $resposta->assertOk();
         $resposta->assertSee('histórico de palpites', false);
     }
 
-    public function test_edicao_direta_continua_bloqueada_mesmo_sem_o_botao(): void
+    public function test_partida_sem_palpites_nao_mostra_aviso(): void
     {
-        $this->markTestSkipped('Depende do model Aposta e da rota de edicao.');
+        $partida = Partida::factory()->create();
 
-        // O botao some da tela, mas a protecao real fica no controller:
-        // uma requisicao montada na mao tem que ser barrada do mesmo jeito.
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.show', $partida));
+
+        $resposta->assertOk();
+        $resposta->assertDontSee('histórico de palpites', false);
+    }
+
+    public function test_listagem_conta_os_palpites_de_cada_partida(): void
+    {
+        $partida = Partida::factory()->create();
+        $this->criarAposta($partida);
+        $this->criarAposta($partida);
+
+        $resposta = $this->actingAs($this->usuario())->get(route('partidas.index'));
+
+        $resposta->assertOk();
+        $resposta->assertViewHas('partidas', fn ($partidas) => $partidas->first()->apostas_count === 2);
+    }
+
+    /** Cria uma aposta usando os campos do modulo do Luis. */
+    private function criarAposta(Partida $partida): Aposta
+    {
+        return Aposta::create([
+            'user_id' => User::factory()->create()->id,
+            'partida_id' => $partida->id,
+            'confronto' => 'Mandante × Visitante',
+            'palpite' => 'mandante',
+            'valor' => 50,
+            'multiplicador' => 2,
+        ]);
     }
 }
