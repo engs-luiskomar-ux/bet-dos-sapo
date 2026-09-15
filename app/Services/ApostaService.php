@@ -72,12 +72,36 @@ class ApostaService
             if (! $partida->estaFinalizada()) {
                 return;
     }
-            $apostas = Aposta::query()
-            ->where('partida_id', $partida->id)
-            ->where('status', 'pendente')
-            ->lockForUpdate()
-            ->get();
+            $resultado = $this->resultadoDaPartida($partida);
             
+            $apostas = Aposta::query()
+                ->where('partida_id', $partida->id)
+                ->where('status', 'pendente')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($apostas as $aposta) {
+        $ganhou = $aposta->palpite === $resultado;
+
+        $retorno = $ganhou
+            ? $aposta->valor * $aposta->multiplicador
+            : 0;
+
+        $aposta->update([
+            'status' => $ganhou ? 'ganha' : 'perdida',
+            'retorno' => $retorno,
+            'placar' => $partida->gols_mandante
+                .' × '
+                .$partida->gols_visitante,
+        ]);
+
+        if ($retorno > 0) {
+            User::whereKey($aposta->user_id)
+                ->increment('saldo_creditos', $retorno);
+        }
+    }
+}
+
             private function resultadoDaPartida(Partida $partida): string
         {
             if ($partida->gols_mandante === $partida->gols_visitante) {
