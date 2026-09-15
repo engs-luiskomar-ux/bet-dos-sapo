@@ -31,6 +31,27 @@ class ApostaService
             $carteira = User::query()
                 ->lockForUpdate()
                 ->findOrFail($usuario->id);
+
+        if ($partida->estaFinalizada()) {
+                throw ValidationException::withMessages([
+                    'aposta' => 'Esta partida já foi encerrada.',
+                ]);
+            }
+            if (! isset(Aposta::OPCOES[$palpite])) {
+                throw ValidationException::withMessages([
+                    'palpite' => 'Escolha um palpite válido.',
+                ]);
+            }
+            if ($valor < 10 || $valor > 1000) {
+                throw ValidationException::withMessages([
+                    'valor' => 'Use entre 10 e 1.000 creditos.',
+                ]);
+            }
+            if ($carteira->saldo_creditos < $valor) {
+                throw ValidationException::withMessages([
+                    'valor' => 'Saldo de creditos insuficiente.',
+                ]);
+            }
         });
     }
 }
