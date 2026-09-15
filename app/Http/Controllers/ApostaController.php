@@ -58,4 +58,17 @@ class ApostaController extends Controller
 
         return view('apostas.index', compact('partidas'));
     }
+
+    public function historico(Request $request): View
+    {
+        $apostas = Aposta::query()
+            ->where('user_id', $request->user()->id)
+            ->latest('id')
+            ->paginate(15);
+
+        return view(
+            'apostas.historico',
+            compact('apostas')
+        );
+    }
 }
