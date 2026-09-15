@@ -62,7 +62,7 @@ class ApostaController extends Controller
 
     public function historico(Request $request): View
     {
-        $request->validate([
+        $dados = $request->validate([
         'status' => [
             'nullable',
             'string',
@@ -74,14 +74,16 @@ class ApostaController extends Controller
             ]),
         ],
     ]);
-        $apostas = Aposta::query()
-            ->where('user_id', $request->user()->id)
-            ->latest('id')
-            ->paginate(15);
+        $consulta = Aposta::query()
+           ->where('user_id', $request->user()->id);
 
-        return view(
-            'apostas.historico',
-            compact('apostas')
-        );
-    }
+        if (! empty($dados['status'])) {
+            $consulta->where('status', $dados['status']);
+        }
+
+        $apostas = $consulta
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
+        }
 }
