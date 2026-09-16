@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\ApostaController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
@@ -14,6 +15,12 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Apostas (Luis)
+    Route::get('/apostas', [ApostaController::class, 'index'])->name('apostas.index');
+    Route::get('/apostas/historico', [ApostaController::class, 'historico'])->name('apostas.historico');
+    Route::post('/apostas', [ApostaController::class, 'store'])->name('apostas.store');
+    Route::post('/apostas/{aposta}/cancelar', [ApostaController::class, 'cancelar'])->name('apostas.cancelar');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

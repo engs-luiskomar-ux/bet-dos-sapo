@@ -85,5 +85,7 @@ class ApostaController extends Controller
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
-        }
+
+        return view('apostas.historico', compact('apostas'));
+    }
 }
