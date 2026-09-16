@@ -122,5 +122,9 @@
                 </div>
             @endforelse
         </div>
+
+        <div class="mt-6">
+            {{ $apostas->links() }}
+        </div>
     </div>
 </x-app-layout>
