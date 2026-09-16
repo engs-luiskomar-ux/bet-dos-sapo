@@ -25,6 +25,7 @@
 - `tests/Feature/Apostas/ApostaTest.php`
 
 ## Validação executada
+- Cancelamento completo conferido no navegador com conta temporária no Neon: abrir a confirmação, voltar sem alterar saldo/status, reabrir e confirmar. Resultado: mensagem de sucesso, status cancelada e saldo de 900 para 1.000. A confirmação agora ocorre dentro da página, sem diálogo nativo do navegador.
 - Após integrar a migration de perfis já presente na `main`: 55 testes aprovados, com 194 verificações. Os testes de apostas agora recarregam o usuário do banco e usam seu perfil persistido.
 - Liquidação testada para mandante, empate e visitante, incluindo apostas ganhas, perdidas, placar, saldo e repetição sequencial sem pagamento duplicado.
 - Conferência no navegador com conta temporária no Neon: login, registro de 100 créditos, saldo de 900, histórico, filtro Canceladas e filtro sem resultados. Cancelamento executado pelo service no Neon, com saldo restabelecido para 1.000; o diálogo do botão travou a automação e o clique completo ainda precisa de conferência manual.
@@ -48,6 +49,5 @@
 - Registradas as rotas necessárias para os formulários e links das views.
 
 ## Pendências
-- Conferir manualmente o diálogo de confirmação do botão Cancelar palpite, que travou a automação do navegador.
 - Conferir a liquidação e o retorno de créditos junto com a simulação de partidas do João.
 - Após a integração do grupo, executar a suíte completa e conferir os fluxos na interface.

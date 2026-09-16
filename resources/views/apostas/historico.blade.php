@@ -92,13 +92,33 @@
                             method="POST"
                             action="{{ route('apostas.cancelar', $aposta) }}"
                             class="mt-4"
-                            onsubmit="return confirm('Cancelar este palpite e receber os créditos de volta?')"
+                            x-data="{ confirmando: false }"
                         >
                             @csrf
 
-                            <x-secondary-button type="submit">
+                            <x-secondary-button
+                                type="button"
+                                x-show="! confirmando"
+                                @click="confirmando = true"
+                            >
                                 Cancelar palpite
                             </x-secondary-button>
+
+                            <div x-cloak x-show="confirmando" role="group" aria-label="Confirmar cancelamento">
+                                <p class="mb-3 text-sm text-gray-700">
+                                    Cancelar este palpite e receber os créditos de volta?
+                                </p>
+
+                                <div class="flex flex-wrap gap-3">
+                                    <x-primary-button type="submit">
+                                        Confirmar cancelamento
+                                    </x-primary-button>
+
+                                    <x-secondary-button type="button" @click="confirmando = false">
+                                        Voltar
+                                    </x-secondary-button>
+                                </div>
+                            </div>
                         </form>
                     @endif
                 </article>
