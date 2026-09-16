@@ -47,6 +47,13 @@
                     <h3 class="text-lg font-semibold text-gray-800">
                         Nenhum palpite encontrado.
                     </h3>
+                    <p class="mt-1 text-sm text-gray-600">
+            {{ App\Models\Aposta::OPCOES[$aposta->palpite]['nome'] }}
+            ·
+            {{ number_format($aposta->valor, 0, ',', '.') }} créditos
+            ·
+            {{ $aposta->multiplicador }}×
+            </p>
                 </div>
             @endforelse
         </div>
