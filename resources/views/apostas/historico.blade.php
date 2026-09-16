@@ -84,6 +84,21 @@
                             </p>
                         @endif
                     </div>
+
+                    @if ($aposta->status === 'pendente')
+                        <form
+                            method="POST"
+                            action="{{ route('apostas.cancelar', $aposta) }}"
+                            class="mt-4"
+                            onsubmit="return confirm('Cancelar este palpite e receber os créditos de volta?')"
+                        >
+                            @csrf
+
+                            <x-secondary-button type="submit">
+                                Cancelar palpite
+                            </x-secondary-button>
+                        </form>
+                    @endif
                 </article>
             @empty
                 <div class="rounded-xl bg-white p-10 text-center">
