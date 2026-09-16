@@ -135,5 +135,9 @@
                 </div>
             @endforelse
         </div>
+
+        <div class="mt-6">
+            {{ $partidas->links() }}
+        </div>
     </div>
 </x-app-layout>
