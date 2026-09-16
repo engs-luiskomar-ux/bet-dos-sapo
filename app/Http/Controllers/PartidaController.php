@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PartidaStatus;
 use App\Http\Requests\FiltroPartidaRequest;
+use App\Http\Requests\PartidaRequest;
 use App\Models\Partida;
+use App\Models\Time;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class PartidaController extends Controller
 {
@@ -35,5 +40,26 @@ class PartidaController extends Controller
         $partida->load(['mandante', 'visitante'])->loadCount('apostas');
 
         return view('partidas.show', compact('partida'));
+    }
+
+    public function create(): View
+    {
+        Gate::authorize('create', Partida::class);
+
+        $times = Time::query()->orderBy('nome')->get();
+
+        return view('partidas.create', compact('times'));
+    }
+
+    public function store(PartidaRequest $request): RedirectResponse
+    {
+        $partida = Partida::create([
+            ...$request->validated(),
+            'status' => PartidaStatus::Agendada,
+        ]);
+
+        return redirect()
+            ->route('partidas.show', $partida)
+            ->with('success', 'Partida cadastrada com sucesso.');
     }
 }

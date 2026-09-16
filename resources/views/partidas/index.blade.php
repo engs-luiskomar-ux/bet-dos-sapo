@@ -2,7 +2,14 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Partidas</h2>
-            <span class="text-sm text-gray-500">{{ $partidas->total() }} jogo(s)</span>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-500">{{ $partidas->total() }} jogo(s)</span>
+                @can('create', App\Models\Partida::class)
+                    <a href="{{ route('partidas.create') }}" class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
+                        Nova partida
+                    </a>
+                @endcan
+            </div>
         </div>
     </x-slot>
 

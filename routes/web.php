@@ -1,10 +1,11 @@
 <?php
+
 use App\Http\Controllers\ApostaController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TimeController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TimeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,8 @@ Route::middleware('auth')->group(function () {
 
     // Partidas (João)
     Route::get('/partidas', [PartidaController::class, 'index'])->name('partidas.index');
+    Route::get('/partidas/criar', [PartidaController::class, 'create'])->name('partidas.create');
+    Route::post('/partidas', [PartidaController::class, 'store'])->name('partidas.store');
     Route::get('/partidas/{partida}', [PartidaController::class, 'show'])->name('partidas.show');
 });
 
