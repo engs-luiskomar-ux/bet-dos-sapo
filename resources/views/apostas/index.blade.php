@@ -43,6 +43,26 @@
                         ×
                         {{ $partida->visitante->sigla }}
                     </p>
+
+                    <form
+                        method="POST"
+                        action="{{ route('apostas.store') }}"
+                        class="mt-5 space-y-4"
+                    >
+                        @csrf
+
+                        <input
+                            type="hidden"
+                            name="partida_id"
+                            value="{{ $partida->id }}"
+                        >
+
+                        <fieldset>
+                            <legend class="text-sm font-semibold text-gray-700">
+                                Seu palpite
+                            </legend>
+                        </fieldset>
+                    </form>
                 </article>
             @empty
                 <div class="rounded-xl bg-white p-10 text-center md:col-span-2">
