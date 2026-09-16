@@ -54,8 +54,42 @@
                         ·
                         {{ $aposta->multiplicador }}×
                     </p>
-                </div>
-            @endforelse
-        </div>
-    </div>
+                                <div class="mt-4 text-sm">
+                    <span
+                        @class([
+                            'rounded-full px-3 py-1 font-semibold',
+                            'bg-green-100 text-green-800' => $aposta->status === 'ganha',
+                            'bg-red-50 text-red-700' => $aposta->status === 'perdida',
+                            'bg-gray-100 text-gray-700' => $aposta->status === 'cancelada',
+                            'bg-amber-50 text-amber-800' => $aposta->status === 'pendente',
+                        ])
+                    >
+                        {{ ucfirst($aposta->status) }}
+                    </span>
+
+                    <p class="mt-3 text-gray-600">
+                        @if ($aposta->status === 'pendente')
+                            Possível retorno:
+                            {{ number_format(
+                                $aposta->valor * $aposta->multiplicador,
+                                0,
+                                ',',
+                                '.'
+                            ) }}
+                        @else
+                            Créditos recebidos:
+                            {{ number_format($aposta->retorno, 0, ',', '.') }}
+                        @endif
+                    </p>
+
+                    @if ($aposta->placar)
+                        <p class="mt-1 text-gray-500">
+                            Placar: {{ $aposta->placar }}
+                        </p>
+                    @endif
+                        </div>
+                                </div>
+                            @endforelse
+                        </div>
+            </div>
 </x-app-layout>
