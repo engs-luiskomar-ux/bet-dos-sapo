@@ -26,5 +26,29 @@
         </div>
 
         @include('apostas._filtros')
+
+        <div class="space-y-4">
+            @forelse ($apostas as $aposta)
+                <article
+                    class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                >
+                    <p class="text-xs text-gray-500">
+                        #{{ $aposta->id }}
+                        ·
+                        {{ $aposta->created_at->format('d/m/Y H:i') }}
+                    </p>
+
+                    <h3 class="mt-1 font-bold text-gray-900">
+                        {{ $aposta->confronto }}
+                    </h3>
+                </article>
+            @empty
+                <div class="rounded-xl bg-white p-10 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        Nenhum palpite encontrado.
+                    </h3>
+                </div>
+            @endforelse
+        </div>
     </div>
 </x-app-layout>
