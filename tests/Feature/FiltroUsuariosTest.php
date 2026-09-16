@@ -12,7 +12,7 @@ class FiltroUsuariosTest extends TestCase
 
     public function test_busca_usuario_por_nome(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
         User::factory()->create(['name' => 'Maria Silva', 'email' => 'maria@teste.com']);
         User::factory()->create(['name' => 'Joao Souza', 'email' => 'joao@teste.com']);
 
@@ -25,7 +25,7 @@ class FiltroUsuariosTest extends TestCase
 
     public function test_busca_usuario_por_email(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
         User::factory()->create(['name' => 'Maria Silva', 'email' => 'maria@teste.com']);
         User::factory()->create(['name' => 'Joao Souza', 'email' => 'joao@teste.com']);
 
@@ -38,7 +38,7 @@ class FiltroUsuariosTest extends TestCase
 
     public function test_lista_vazia_quando_nao_encontra(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
 
         $response = $this->actingAs($admin)->get('/usuarios?busca=NaoExiste');
 
@@ -64,5 +64,50 @@ class FiltroUsuariosTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Torcedor Um');
         $response->assertDontSee('Organizador Um');
+    }
+
+    public function test_torcedor_nao_acessa_lista_de_usuarios(): void
+    {
+        $torcedor = User::factory()->create(['role' => 'torcedor']);
+
+        $response = $this->actingAs($torcedor)->get('/usuarios');
+
+        $response->assertForbidden();
+    }
+
+    public function test_organizador_nao_acessa_lista_de_usuarios(): void
+    {
+        $organizador = User::factory()->create(['role' => 'organizador']);
+
+        $response = $this->actingAs($organizador)->get('/usuarios');
+
+        $response->assertForbidden();
+    }
+
+    public function test_nao_permite_remover_ultimo_admin(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->patch(
+            route('usuarios.alterar-papel', $admin),
+            ['role' => 'torcedor']
+        );
+
+        $response->assertRedirect();
+        $this->assertEquals('admin', $admin->fresh()->role);
+    }
+
+    public function test_permite_remover_admin_quando_ha_outro(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $outroAdmin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->patch(
+            route('usuarios.alterar-papel', $admin),
+            ['role' => 'torcedor']
+        );
+
+        $response->assertRedirect();
+        $this->assertEquals('torcedor', $admin->fresh()->role);
     }
 }

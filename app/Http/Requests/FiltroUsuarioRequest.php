@@ -10,7 +10,7 @@ class FiltroUsuarioRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return $this->user()?->role === UserRole::Admin->value;
     }
 
     public function rules(): array
