@@ -86,6 +86,38 @@
                                 @endforeach
                             </div>
                         </fieldset>
+
+                        <div>
+                            <label
+                                for="valor-{{ $partida->id }}"
+                                class="block text-sm font-semibold text-gray-700"
+                            >
+                                Créditos da aposta
+                            </label>
+
+                            <input
+                                id="valor-{{ $partida->id }}"
+                                type="number"
+                                name="valor"
+                                min="10"
+                                max="1000"
+                                step="1"
+                                value="{{ old('partida_id') == $partida->id ? old('valor', 10) : 10 }}"
+                                required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            >
+
+                            <p class="mt-1 text-xs text-gray-500">
+                                Use entre 10 e 1.000 créditos inteiros.
+                            </p>
+
+                            @if (old('partida_id') == $partida->id)
+                                <x-input-error
+                                    :messages="$errors->get('valor')"
+                                    class="mt-2"
+                                />
+                            @endif
+                        </div>
                     </form>
                 </article>
             @empty
