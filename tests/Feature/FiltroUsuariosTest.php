@@ -52,4 +52,17 @@ class FiltroUsuariosTest extends TestCase
 
         $response->assertRedirect('/login');
     }
+
+    public function test_filtra_usuario_por_papel(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['name' => 'Torcedor Um', 'role' => 'torcedor']);
+        User::factory()->create(['name' => 'Organizador Um', 'role' => 'organizador']);
+
+        $response = $this->actingAs($admin)->get('/usuarios?role=torcedor');
+
+        $response->assertStatus(200);
+        $response->assertSee('Torcedor Um');
+        $response->assertDontSee('Organizador Um');
+    }
 }

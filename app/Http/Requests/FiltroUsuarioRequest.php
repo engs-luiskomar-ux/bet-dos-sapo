@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FiltroUsuarioRequest extends FormRequest
 {
@@ -15,6 +17,7 @@ class FiltroUsuarioRequest extends FormRequest
     {
         return [
             'busca' => ['nullable', 'string', 'max:100'],
+            'role' => ['nullable', Rule::enum(UserRole::class)],
         ];
     }
 }

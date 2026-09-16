@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\FiltroUsuarioRequest;
 use App\Models\User;
 
@@ -10,6 +11,7 @@ class UsuarioController extends Controller
     public function index(FiltroUsuarioRequest $request)
     {
         $busca = trim($request->validated('busca') ?? '');
+        $role = $request->validated('role');
 
         $usuarios = User::query()
             ->when($busca !== '', function ($query) use ($busca) {
@@ -18,10 +20,15 @@ class UsuarioController extends Controller
                       ->orWhere('email', 'like', "%{$busca}%");
                 });
             })
+            ->when($role, function ($query) use ($role) {
+                $query->where('role', $role);
+            })
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
 
-        return view('usuarios.index', compact('usuarios'));
+        $papeis = UserRole::cases();
+
+        return view('usuarios.index', compact('usuarios', 'papeis'));
     }
 }
