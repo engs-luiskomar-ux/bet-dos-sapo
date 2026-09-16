@@ -24,5 +24,37 @@
                 Meus palpites
             </a>
         </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+            @forelse ($partidas as $partida)
+                <article class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-semibold text-green-700">
+                        Rodada {{ $partida->rodada }}
+                    </p>
+
+                    <h3 class="mt-2 text-lg font-bold text-gray-900">
+                        {{ $partida->mandante->nome }}
+                        <span class="text-gray-400">×</span>
+                        {{ $partida->visitante->nome }}
+                    </h3>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $partida->mandante->sigla }}
+                        ×
+                        {{ $partida->visitante->sigla }}
+                    </p>
+                </article>
+            @empty
+                <div class="rounded-xl bg-white p-10 text-center md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        Nenhuma partida disponível para palpites.
+                    </h3>
+
+                    <p class="mt-2 text-gray-500">
+                        Aguarde o cadastro de novas partidas.
+                    </p>
+                </div>
+            @endforelse
+        </div>
     </div>
 </x-app-layout>
