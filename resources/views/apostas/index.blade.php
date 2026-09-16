@@ -118,6 +118,9 @@
                                 />
                             @endif
                         </div>
+                        <x-primary-button type="submit">
+                            Registrar palpite
+                        </x-primary-button>
                     </form>
                 </article>
             @empty
