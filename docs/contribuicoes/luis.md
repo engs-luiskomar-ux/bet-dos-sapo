@@ -8,6 +8,7 @@
 - Formulário de filtros e mensagens distintas para histórico vazio e filtro sem resultados.
 - Rotas autenticadas para listagem, histórico, registro e cancelamento de apostas.
 - Central de palpites com botão de envio e links de paginação das partidas disponíveis.
+- Mensagens de sucesso e erros de validação na central de palpites e no histórico.
 
 ## Arquivos da contribuição
 - `app/Http/Requests/ApostaRequest.php`
@@ -18,6 +19,7 @@
 - `resources/views/apostas/index.blade.php`
 - `resources/views/apostas/historico.blade.php`
 - `resources/views/apostas/_filtros.blade.php`
+- `resources/views/apostas/_mensagens.blade.php`
 - `routes/web.php` (rotas de apostas)
 - `tests/Feature/FiltroApostasTest.php`
 - `tests/Feature/Apostas/ApostaTest.php`
@@ -31,6 +33,7 @@
 - `npm run build`: concluído com sucesso em 16/09/2026.
 - Renderização da view `apostas.index` com dados em memória: botão de envio e link da segunda página presentes. Esta verificação não substitui a conferência visual no navegador.
 - Os testes usam SQLite em memória; não apagam nem migram o banco compartilhado do Neon.
+- Renderização do componente de mensagens: confirmação, erro de validação e ausência de avisos quando não há mensagens conferidos em memória.
 
 ## Dificuldades resolvidas
 - Corrigido o uso de `validated()` no controller.
