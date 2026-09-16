@@ -25,6 +25,7 @@
 - `tests/Feature/Apostas/ApostaTest.php`
 
 ## Validação executada
+- Suíte completa na branch `luis`, em 16/09/2026: `php vendor/phpunit/phpunit/phpunit --debug` — 54 testes aprovados, com 169 verificações. O build foi executado novamente após a inclusão das mensagens e também passou. Esta conferência abrange o código presente nesta branch, sem atualizar ou integrar novas alterações remotas do grupo.
 - `php vendor/phpunit/phpunit/phpunit --filter="ApostaTest|FiltroApostasTest" --debug`: 13 testes aprovados, com 72 verificações.
 - Os testes conferem registro, desconto de saldo, saldo insuficiente, partida finalizada, dados inválidos e bloqueio de registro para outros perfis.
 - Conferem também cancelamento, devolução única de créditos, proteção contra cancelamento de apostas de outro usuário e bloqueio após o resultado.
