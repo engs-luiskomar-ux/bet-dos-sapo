@@ -102,9 +102,23 @@
                 </article>
             @empty
                 <div class="rounded-xl bg-white p-10 text-center">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        Nenhum palpite encontrado.
-                    </h3>
+                    @if (request()->filled('status'))
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            Nenhum palpite para este filtro.
+                        </h3>
+
+                        <p class="mt-2 text-gray-500">
+                            Escolha outro status ou limpe o filtro.
+                        </p>
+                    @else
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            Nenhum palpite cadastrado.
+                        </h3>
+
+                        <p class="mt-2 text-gray-500">
+                            Escolha uma partida para fazer seu primeiro palpite.
+                        </p>
+                    @endif
                 </div>
             @endforelse
         </div>
