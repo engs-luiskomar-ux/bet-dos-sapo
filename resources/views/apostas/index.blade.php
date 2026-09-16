@@ -61,6 +61,30 @@
                             <legend class="text-sm font-semibold text-gray-700">
                                 Seu palpite
                             </legend>
+
+                            <div class="mt-3 grid gap-2 sm:grid-cols-3">
+                                @foreach (App\Models\Aposta::OPCOES as $valor => $opcao)
+                                    <label
+                                        class="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 p-3"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="palpite"
+                                            value="{{ $valor }}"
+                                            required
+                                            @checked(
+                                                old('partida_id') == $partida->id
+                                                && old('palpite') === $valor
+                                            )
+                                        >
+
+                                        <span class="text-sm text-gray-700">
+                                            {{ $opcao['nome'] }}
+                                            ({{ $opcao['multiplicador'] }}×)
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </fieldset>
                     </form>
                 </article>
