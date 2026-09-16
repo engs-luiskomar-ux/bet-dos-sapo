@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+    Route::patch('/usuarios/{usuario}/papel', [UsuarioController::class, 'alterarPapel'])->name('usuarios.alterar-papel');
 
     Route::resource('times', TimeController::class);
 
