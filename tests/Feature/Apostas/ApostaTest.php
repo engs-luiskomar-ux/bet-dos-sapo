@@ -15,10 +15,7 @@ class ApostaTest extends TestCase
     private function torcedor(): User
     {
         $usuario = User::factory()->create();
-        // Perfil em memoria enquanto a integracao de usuarios nao cria a coluna role.
-        $usuario->setAttribute('role', 'torcedor');
-
-        return $usuario;
+        return $usuario->fresh();
     }
 
     private function registrar(User $usuario, Partida $partida, array $dados = [])
@@ -92,9 +89,10 @@ class ApostaTest extends TestCase
     public function test_bloqueia_registro_para_outros_perfis(): void
     {
         $partida = Partida::factory()->create();
-        foreach (['admin', 'organizador', null] as $perfil) {
+        foreach (['admin', 'organizador'] as $perfil) {
             $usuario = User::factory()->create();
-            $usuario->setAttribute('role', $perfil);
+            $usuario->forceFill(['role' => $perfil])->save();
+            $usuario = $usuario->fresh();
             $this->registrar($usuario, $partida)->assertForbidden();
             $this->assertEquals(1000, $usuario->fresh()->saldo_creditos);
         }
@@ -134,6 +132,41 @@ class ApostaTest extends TestCase
 
         $this->assertSame('pendente', $aposta->fresh()->status);
         $this->assertEquals(900, $dono->fresh()->saldo_creditos);
+    }
+
+    public function test_liquida_resultados_e_nao_paga_duas_vezes(): void
+    {
+        foreach ([[2, 0, 'mandante'], [1, 1, 'empate'], [0, 2, 'visitante']] as [$mandante, $visitante, $resultado]) {
+            $partida = Partida::factory()->create();
+            $usuarios = [];
+            foreach (['mandante', 'empate', 'visitante'] as $palpite) {
+                $usuarios[$palpite] = $this->torcedor();
+                $this->registrar($usuarios[$palpite], $partida, ['palpite' => $palpite])
+                    ->assertSessionHas('success');
+            }
+
+            $partida->update([
+                'status' => \App\Enums\PartidaStatus::Finalizada,
+                'gols_mandante' => $mandante,
+                'gols_visitante' => $visitante,
+            ]);
+
+            $service = app(\App\Services\ApostaService::class);
+            $service->liquidar($partida);
+            $service->liquidar($partida);
+
+            foreach ($usuarios as $palpite => $usuario) {
+                $retorno = $palpite === $resultado ? 100 * Aposta::OPCOES[$palpite]['multiplicador'] : 0;
+                $this->assertEquals(900 + $retorno, $usuario->fresh()->saldo_creditos);
+                $this->assertDatabaseHas('apostas', [
+                    'user_id' => $usuario->id,
+                    'partida_id' => $partida->id,
+                    'status' => $palpite === $resultado ? 'ganha' : 'perdida',
+                    'retorno' => $retorno,
+                    'placar' => $mandante.' × '.$visitante,
+                ]);
+            }
+        }
     }
 
     public function test_nao_cancela_apos_partida_finalizada(): void
