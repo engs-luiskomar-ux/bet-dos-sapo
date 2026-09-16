@@ -41,12 +41,7 @@
                     <h3 class="mt-1 font-bold text-gray-900">
                         {{ $aposta->confronto }}
                     </h3>
-                </article>
-            @empty
-                <div class="rounded-xl bg-white p-10 text-center">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        Nenhum palpite encontrado.
-                    </h3>
+
                     <p class="mt-1 text-sm text-gray-600">
                         {{ App\Models\Aposta::OPCOES[$aposta->palpite]['nome'] }}
                         ·
@@ -54,42 +49,49 @@
                         ·
                         {{ $aposta->multiplicador }}×
                     </p>
-                                <div class="mt-4 text-sm">
-                    <span
-                        @class([
-                            'rounded-full px-3 py-1 font-semibold',
-                            'bg-green-100 text-green-800' => $aposta->status === 'ganha',
-                            'bg-red-50 text-red-700' => $aposta->status === 'perdida',
-                            'bg-gray-100 text-gray-700' => $aposta->status === 'cancelada',
-                            'bg-amber-50 text-amber-800' => $aposta->status === 'pendente',
-                        ])
-                    >
-                        {{ ucfirst($aposta->status) }}
-                    </span>
 
-                    <p class="mt-3 text-gray-600">
-                        @if ($aposta->status === 'pendente')
-                            Possível retorno:
-                            {{ number_format(
-                                $aposta->valor * $aposta->multiplicador,
-                                0,
-                                ',',
-                                '.'
-                            ) }}
-                        @else
-                            Créditos recebidos:
-                            {{ number_format($aposta->retorno, 0, ',', '.') }}
-                        @endif
-                    </p>
+                    <div class="mt-4 text-sm">
+                        <span
+                            @class([
+                                'rounded-full px-3 py-1 font-semibold',
+                                'bg-green-100 text-green-800' => $aposta->status === 'ganha',
+                                'bg-red-50 text-red-700' => $aposta->status === 'perdida',
+                                'bg-gray-100 text-gray-700' => $aposta->status === 'cancelada',
+                                'bg-amber-50 text-amber-800' => $aposta->status === 'pendente',
+                            ])
+                        >
+                            {{ ucfirst($aposta->status) }}
+                        </span>
 
-                    @if ($aposta->placar)
-                        <p class="mt-1 text-gray-500">
-                            Placar: {{ $aposta->placar }}
+                        <p class="mt-3 text-gray-600">
+                            @if ($aposta->status === 'pendente')
+                                Possível retorno:
+                                {{ number_format(
+                                    $aposta->valor * $aposta->multiplicador,
+                                    0,
+                                    ',',
+                                    '.'
+                                ) }}
+                            @else
+                                Créditos recebidos:
+                                {{ number_format($aposta->retorno, 0, ',', '.') }}
+                            @endif
                         </p>
-                    @endif
-                        </div>
-                                </div>
-                            @endforelse
-                        </div>
-            </div>
+
+                        @if ($aposta->placar)
+                            <p class="mt-1 text-gray-500">
+                                Placar: {{ $aposta->placar }}
+                            </p>
+                        @endif
+                    </div>
+                </article>
+            @empty
+                <div class="rounded-xl bg-white p-10 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        Nenhum palpite encontrado.
+                    </h3>
+                </div>
+            @endforelse
+        </div>
+    </div>
 </x-app-layout>
