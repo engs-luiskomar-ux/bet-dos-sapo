@@ -36,13 +36,15 @@
                     </div>
                 </dl>
 
-                @if (auth()->user()->role === 'admin')
-                    <div class="mt-8 flex items-center gap-4">
+                <div class="mt-8 flex items-center gap-4">
+                    @can('update', $time)
                         <a href="{{ route('times.edit', $time) }}"
                            class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
                             Editar time
                         </a>
+                    @endcan
 
+                    @can('delete', $time)
                         <form method="POST" action="{{ route('times.destroy', $time) }}"
                               onsubmit="return confirm('Deseja excluir este time?')">
                             @csrf
@@ -52,8 +54,8 @@
                                 Excluir time
                             </button>
                         </form>
-                    </div>
-                @endif
+                    @endcan
+                </div>
             </div>
         </div>
     </div>

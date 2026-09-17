@@ -6,6 +6,8 @@ use App\Http\Requests\FiltroTimeRequest;
 use App\Http\Requests\TimeRequest;
 use App\Models\Time;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class TimeController extends Controller
 {
@@ -14,9 +16,12 @@ class TimeController extends Controller
      */
     public function index(FiltroTimeRequest $request): View
     {
+        Gate::authorize('viewAny', Time::class);
+
         $busca = $request->string('busca')->toString();
 
         $times = Time::query()
+            ->withCount(['partidasMandante', 'partidasVisitante'])
             ->when($request->filled('busca'), function ($query) use ($busca): void {
                 $query->where(function ($query) use ($busca): void {
                     $query->whereLike('nome', "%{$busca}%")
@@ -43,16 +48,20 @@ class TimeController extends Controller
     /**
      * Exibe o formulário de criação.
      */
-    public function create()
+    public function create(): View
     {
+        Gate::authorize('create', Time::class);
+
         return view('times.create');
     }
 
     /**
      * Salva um novo time.
      */
-    public function store(TimeRequest $request)
+    public function store(TimeRequest $request): RedirectResponse
     {
+        Gate::authorize('create', Time::class);
+
         Time::create($request->validated());
 
         return redirect()
@@ -63,24 +72,32 @@ class TimeController extends Controller
     /**
      * Exibe um time específico.
      */
-    public function show(Time $time)
+    public function show(Time $time): View
     {
+        Gate::authorize('view', $time);
+
+        $time->loadCount(['partidasMandante', 'partidasVisitante']);
+
         return view('times.show', compact('time'));
     }
 
     /**
      * Exibe o formulário de edição.
      */
-    public function edit(Time $time)
+    public function edit(Time $time): View
     {
+        Gate::authorize('update', $time);
+
         return view('times.edit', compact('time'));
     }
 
     /**
      * Atualiza um time.
      */
-    public function update(TimeRequest $request, Time $time)
+    public function update(TimeRequest $request, Time $time): RedirectResponse
     {
+        Gate::authorize('update', $time);
+
         $time->update($request->validated());
 
         return redirect()
@@ -91,8 +108,10 @@ class TimeController extends Controller
     /**
      * Exclui um time.
      */
-    public function destroy(Time $time)
+    public function destroy(Time $time): RedirectResponse
     {
+        Gate::authorize('delete', $time);
+
         $time->delete();
 
         return redirect()

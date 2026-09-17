@@ -4,12 +4,12 @@
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Times</h2>
             <div class="flex items-center gap-4">
                 <span class="text-sm text-gray-500">{{ $times->total() }} time(s)</span>
-                @if (auth()->user()->role === 'admin')
+                @can('create', App\Models\Time::class)
                     <a href="{{ route('times.create') }}"
                        class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
                         Novo time
                     </a>
-                @endif
+                @endcan
             </div>
         </div>
     </x-slot>
@@ -62,9 +62,12 @@
                                             <a href="{{ route('times.show', $time) }}"
                                                class="text-indigo-600 hover:underline">Ver</a>
 
-                                            @if (auth()->user()->role === 'admin')
+                                            @can('update', $time)
                                                 <a href="{{ route('times.edit', $time) }}"
                                                    class="ml-3 text-green-700 hover:underline">Editar</a>
+                                            @endcan
+
+                                            @can('delete', $time)
                                                 <form method="POST" action="{{ route('times.destroy', $time) }}"
                                                       class="ml-3 inline"
                                                       onsubmit="return confirm('Deseja excluir este time?')">
@@ -72,7 +75,7 @@
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-700 hover:underline">Excluir</button>
                                                 </form>
-                                            @endif
+                                            @endcan
                                         </td>
                                     </tr>
                                 @endforeach
