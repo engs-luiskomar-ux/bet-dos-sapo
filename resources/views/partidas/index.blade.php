@@ -108,6 +108,14 @@
                                             <button type="submit" class="text-red-700 hover:underline">Excluir</button>
                                         </form>
                                     @endcan
+                                    @can('simular', $partida)
+                                        <form method="POST" action="{{ route('partidas.simular', $partida) }}"
+                                              class="ml-3 inline"
+                                              onsubmit="return confirm('Deseja simular o resultado desta partida?')">
+                                            @csrf
+                                            <button type="submit" class="text-blue-700 hover:underline">Simular</button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

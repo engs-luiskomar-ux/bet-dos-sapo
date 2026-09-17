@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/partidas/{partida}/editar', [PartidaController::class, 'edit'])->name('partidas.edit');
     Route::match(['put', 'patch'], '/partidas/{partida}', [PartidaController::class, 'update'])->name('partidas.update');
     Route::delete('/partidas/{partida}', [PartidaController::class, 'destroy'])->name('partidas.destroy');
+    Route::post('/partidas/{partida}/simular', [PartidaController::class, 'simular'])->name('partidas.simular');
     Route::get('/partidas/{partida}', [PartidaController::class, 'show'])->name('partidas.show');
 });
 

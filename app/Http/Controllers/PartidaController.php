@@ -7,8 +7,10 @@ use App\Http\Requests\FiltroPartidaRequest;
 use App\Http\Requests\PartidaRequest;
 use App\Models\Partida;
 use App\Models\Time;
+use App\Services\ApostaService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class PartidaController extends Controller
@@ -92,5 +94,30 @@ class PartidaController extends Controller
         return redirect()
             ->route('partidas.index')
             ->with('success', 'Partida excluída com sucesso.');
+    }
+
+    public function simular(Partida $partida, ApostaService $apostaService): RedirectResponse
+    {
+        Gate::authorize('simular', $partida);
+
+        DB::transaction(function () use ($partida, $apostaService): void {
+            $partidaBloqueada = Partida::query()
+                ->lockForUpdate()
+                ->findOrFail($partida->id);
+
+            abort_unless($partidaBloqueada->estaAgendada(), 403);
+
+            $partidaBloqueada->update([
+                'status' => PartidaStatus::Finalizada,
+                'gols_mandante' => random_int(0, 5),
+                'gols_visitante' => random_int(0, 5),
+            ]);
+
+            $apostaService->liquidar($partidaBloqueada);
+        });
+
+        return redirect()
+            ->route('partidas.show', $partida)
+            ->with('success', 'Partida simulada e apostas liquidadas com sucesso.');
     }
 }

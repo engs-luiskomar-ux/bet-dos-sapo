@@ -59,6 +59,16 @@
                             </button>
                         </form>
                     @endcan
+
+                    @can('simular', $partida)
+                        <form method="POST" action="{{ route('partidas.simular', $partida) }}"
+                              onsubmit="return confirm('Deseja simular o resultado desta partida?')">
+                            @csrf
+                            <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white">
+                                Simular resultado
+                            </button>
+                        </form>
+                    @endcan
                 </div>
             </div>
         </div>
