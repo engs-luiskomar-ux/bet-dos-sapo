@@ -37,11 +37,21 @@
                 </dl>
 
                 @if (auth()->user()->role === 'admin')
-                    <div class="mt-8">
+                    <div class="mt-8 flex items-center gap-4">
                         <a href="{{ route('times.edit', $time) }}"
                            class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
                             Editar time
                         </a>
+
+                        <form method="POST" action="{{ route('times.destroy', $time) }}"
+                              onsubmit="return confirm('Deseja excluir este time?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white">
+                                Excluir time
+                            </button>
+                        </form>
                     </div>
                 @endif
             </div>
