@@ -43,12 +43,20 @@ class UsuarioController extends Controller
             'role' => ['required', Rule::enum(UserRole::class)],
         ]);
 
-        if ($usuario->id === $request->user()->id
-            && $dados['role'] !== UserRole::Admin->value) {
-            return back()->with('error', 'Não é possível remover o próprio acesso de administrador.');
+        $novoPapel = $dados['role'] instanceof UserRole ? $dados['role']->value : $dados['role'];
+
+        // Se o usuário alvo for Admin e o novo papel não for Admin, verifica quantos existem
+        $papelAtual = $usuario->role instanceof UserRole ? $usuario->role->value : $usuario->role;
+
+        if ($papelAtual === UserRole::Admin->value && $novoPapel !== UserRole::Admin->value) {
+            $totalAdmins = User::where('role', UserRole::Admin->value)->count();
+
+            if ($totalAdmins <= 1) {
+                return back()->with('error', 'Não é possível remover o único administrador do sistema.');
+            }
         }
 
-        $usuario->update(['role' => $dados['role']]);
+        $usuario->update(['role' => $novoPapel]);
 
         return back()->with('success', 'Papel atualizado com sucesso.');
     }
