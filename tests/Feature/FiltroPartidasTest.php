@@ -138,6 +138,20 @@ class FiltroPartidasTest extends TestCase
         $resposta->assertSee('histórico de palpites', false);
     }
 
+    public function test_palpites_ocultam_edicao_e_exclusao_mas_mantem_simulacao(): void
+    {
+        $organizador = User::factory()->create(['role' => 'organizador']);
+        $partida = Partida::factory()->create();
+        $this->criarAposta($partida);
+
+        $resposta = $this->actingAs($organizador)->get(route('partidas.show', $partida));
+
+        $resposta->assertOk();
+        $resposta->assertDontSee('Editar partida');
+        $resposta->assertDontSee('Excluir partida');
+        $resposta->assertSee('Simular resultado');
+    }
+
     public function test_partida_sem_palpites_nao_mostra_aviso(): void
     {
         $partida = Partida::factory()->create();

@@ -12,6 +12,10 @@
 
     <div class="py-8">
         <div class="mx-auto max-w-3xl space-y-4 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="rounded-md bg-green-100 p-4 text-green-800">{{ session('success') }}</div>
+            @endif
+
             @if ($partida->apostas_count > 0)
                 @include('partidas._aviso-apostas', ['total' => $partida->apostas_count])
             @endif
@@ -37,6 +41,35 @@
                         <dd class="font-medium">{{ $partida->apostas_count }}</dd>
                     </div>
                 </dl>
+
+                <div class="mt-6 flex items-center gap-4">
+                    @can('update', $partida)
+                        <a href="{{ route('partidas.edit', $partida) }}" class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
+                            Editar partida
+                        </a>
+                    @endcan
+
+                    @can('delete', $partida)
+                        <form method="POST" action="{{ route('partidas.destroy', $partida) }}"
+                              onsubmit="return confirm('Deseja excluir esta partida?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white">
+                                Excluir partida
+                            </button>
+                        </form>
+                    @endcan
+
+                    @can('simular', $partida)
+                        <form method="POST" action="{{ route('partidas.simular', $partida) }}"
+                              onsubmit="return confirm('Deseja simular o resultado desta partida?')">
+                            @csrf
+                            <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white">
+                                Simular resultado
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>
