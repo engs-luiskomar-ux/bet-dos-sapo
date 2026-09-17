@@ -110,4 +110,41 @@ class FiltroUsuariosTest extends TestCase
         $response->assertRedirect();
         $this->assertEquals('torcedor', $admin->fresh()->role);
     }
+
+    public function test_busca_combinada_com_papel(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['name' => 'Maria Torcedora', 'email' => 'maria@teste.com', 'role' => 'torcedor']);
+        User::factory()->create(['name' => 'Maria Organizadora', 'email' => 'maria2@teste.com', 'role' => 'organizador']);
+
+        $response = $this->actingAs($admin)->get('/usuarios?busca=Maria&role=torcedor');
+
+        $response->assertStatus(200);
+        $response->assertSee('Maria Torcedora');
+        $response->assertDontSee('Maria Organizadora');
+    }
+
+    public function test_rejeita_papel_invalido(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/usuarios?role=inexistente');
+
+        $response->assertSessionHasErrors('role');
+    }
+
+    public function test_mantem_filtro_na_paginacao(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(15)->create(['role' => 'torcedor']);
+        User::factory()->count(5)->create(['role' => 'organizador']);
+
+        $response = $this->actingAs($admin)->get('/usuarios?role=torcedor&page=2');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('usuarios', function ($usuarios) {
+            return $usuarios->currentPage() === 2
+                && collect($usuarios->items())->every(fn ($u) => $u->role === 'torcedor');
+        });
+    }
 }

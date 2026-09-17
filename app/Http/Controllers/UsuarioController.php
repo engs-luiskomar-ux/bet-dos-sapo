@@ -44,9 +44,8 @@ class UsuarioController extends Controller
         ]);
 
         if ($usuario->id === $request->user()->id
-            && $dados['role'] !== UserRole::Admin->value
-            && User::where('role', UserRole::Admin->value)->count() <= 1) {
-            return back()->with('error', 'Não é possível remover o último administrador do sistema.');
+            && $dados['role'] !== UserRole::Admin->value) {
+            return back()->with('error', 'Não é possível remover o próprio acesso de administrador.');
         }
 
         $usuario->update(['role' => $dados['role']]);
