@@ -2,19 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FiltroTimeRequest;
 use App\Http\Requests\TimeRequest;
 use App\Models\Time;
+use Illuminate\Contracts\View\View;
 
 class TimeController extends Controller
 {
     /**
      * Exibe a lista de times.
      */
-    public function index()
+    public function index(FiltroTimeRequest $request): View
     {
-        $times = Time::orderBy('nome')->paginate(10);
+        $busca = $request->string('busca')->toString();
 
-        return view('times.index', compact('times'));
+        $times = Time::query()
+            ->when($request->filled('busca'), function ($query) use ($busca): void {
+                $query->where(function ($query) use ($busca): void {
+                    $query->whereLike('nome', "%{$busca}%")
+                        ->orWhereLike('sigla', "%{$busca}%");
+                });
+            })
+            ->when(
+                $request->filled('estado'),
+                fn ($query) => $query->where('estado', $request->string('estado')->toString()),
+            )
+            ->orderBy('nome')
+            ->paginate(10)
+            ->withQueryString();
+
+        $estados = Time::query()
+            ->whereNotNull('estado')
+            ->distinct()
+            ->orderBy('estado')
+            ->pluck('estado');
+
+        return view('times.index', compact('times', 'estados'));
     }
 
     /**
