@@ -45,3 +45,8 @@ npm.cmd run build
 Para trabalhar em uma branch: `git switch Luis` (ou o nome correspondente).
 
 O arquivo `.env`, `vendor` e `node_modules` ficam apenas no ambiente local. Nunca adicione a senha do Neon ao repositorio. O `.env.example` contem apenas um modelo sem credenciais.
+# Conexão de apostas com o Neon pooler
+
+Se o host do Neon usa `-pooler`, configure `DB_DISABLE_PREPARES=true` no `.env` local para usar o modo do PDO PostgreSQL compatível com esta instalação. Depois execute `php artisan config:clear`.
+
+O banco recebe o perfil padrão `torcedor` pela migration `2026_09_16_014353_add_role_to_users_table.php`. Em uma instalação nova, execute `php artisan migrate`. O formulário público de cadastro não recebe o papel enviado pelo cliente; alterações para admin ou organizador devem ser feitas por um fluxo administrativo autorizado.

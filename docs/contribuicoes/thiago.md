@@ -1,27 +1,27 @@
-# Contribuição — Thiago (Gerenciamento de Usuários)
+# Contribuição — Thiago (Usuários)
 
 ## Funcionalidade implementada
-- Busca de usuários por nome ou e-mail na rota `/usuarios`.
-- Tela explicativa dos papéis do sistema (Admin, Organizador, Torcedor).
-- Instalação do Laravel Breeze (autenticação base do projeto).
+- Pesquisa de usuários por nome ou e-mail, com filtro adicional por papel (admin, organizador, torcedor).
+- Tela com explicação dos três perfis de permissão (`_permissoes.blade.php`).
+- Preservação dos filtros ao paginar a listagem (`withQueryString()`).
+- Mensagem diferenciada quando não há usuários cadastrados x quando o filtro não retorna resultados.
+- Proteção para que um administrador não consiga remover o próprio acesso de admin, mesmo havendo outros admins no sistema.
 
 ## Arquivos alterados/criados
-- `app/Http/Controllers/UsuarioController.php` (criado)
-- `resources/views/usuarios/index.blade.php` (criado)
+- `app/Http/Requests/FiltroUsuarioRequest.php` (criado)
+- `app/Http/Controllers/UsuarioController.php` (editado — método `index()` usando o request, e `alterarPapel()` com a proteção do próprio admin)
+- `resources/views/usuarios/_filtros.blade.php` (criado)
 - `resources/views/usuarios/_permissoes.blade.php` (criado)
-- `routes/web.php` (editado — rota `/usuarios`)
+- `resources/views/usuarios/index.blade.php` (editado)
+- `tests/Feature/FiltroUsuariosTest.php` (criado)
 
 ## Testes executados
-- `tests/Feature/FiltroUsuariosTest.php`
-  - Busca por nome
-  - Busca por e-mail
-  - Lista vazia quando não encontra
-  - Redirecionamento quando não autenticado
-- Resultado: 4 testes passando (10 assertions).
+- `php artisan test --filter=FiltroUsuariosTest`
+- `php artisan test --filter=ControleAcessoTest`
+- `php artisan test --filter=AuthenticationTest`
+- Testes manuais: filtro por nome/e-mail, filtro por papel, combinação dos dois, paginação mantendo filtro, acesso bloqueado para torcedor/organizador em `/usuarios`.
+- Teste manual da proteção do admin: tentativa de alterar o próprio papel (bloqueada) e alteração do papel de outro usuário (funcionando normalmente).
+- Conferida a responsividade em celular real via rede local.
 
 ## Dificuldades resolvidas
-- Erro "headers already sent" causado pela ausência da chave de aplicação (`APP_KEY`) — resolvido criando o `.env` e rodando `php artisan key:generate`.
-- Testes falhando por driver SQLite ausente no PHP local — resolvido habilitando a extensão `pdo_sqlite` no `php.ini`.
-
-## Pendente
-- Filtro por papel (`role`) — depende da criação da coluna/estrutura de permissões, que é compartilhada entre as tarefas do grupo (Luis e Nelson também dependem dela). Aguardando alinhamento do grupo sobre quem vai criar essa base.
+- A regra original só bloqueava a troca de papel quando o usuário era o **último** admin; foi ajustada para bloquear sempre que o próprio admin tentar mudar seu papel, independente de quantos outros admins existam.
