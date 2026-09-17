@@ -62,4 +62,24 @@ class PartidaController extends Controller
             ->route('partidas.show', $partida)
             ->with('success', 'Partida cadastrada com sucesso.');
     }
+
+    public function edit(Partida $partida): View
+    {
+        Gate::authorize('update', $partida);
+
+        $times = Time::query()->orderBy('nome')->get();
+
+        return view('partidas.edit', compact('partida', 'times'));
+    }
+
+    public function update(PartidaRequest $request, Partida $partida): RedirectResponse
+    {
+        Gate::authorize('update', $partida);
+
+        $partida->update($request->validated());
+
+        return redirect()
+            ->route('partidas.show', $partida)
+            ->with('success', 'Partida atualizada com sucesso.');
+    }
 }

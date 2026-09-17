@@ -91,6 +91,10 @@
                                 <td class="px-4 py-3 text-right">
                                     <a href="{{ route('partidas.show', $partida) }}"
                                        class="text-indigo-600 hover:underline">Detalhes</a>
+                                    @can('update', $partida)
+                                        <a href="{{ route('partidas.edit', $partida) }}"
+                                           class="ml-3 text-green-700 hover:underline">Editar</a>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

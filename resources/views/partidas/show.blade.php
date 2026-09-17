@@ -12,6 +12,10 @@
 
     <div class="py-8">
         <div class="mx-auto max-w-3xl space-y-4 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="rounded-md bg-green-100 p-4 text-green-800">{{ session('success') }}</div>
+            @endif
+
             @if ($partida->apostas_count > 0)
                 @include('partidas._aviso-apostas', ['total' => $partida->apostas_count])
             @endif
@@ -37,6 +41,14 @@
                         <dd class="font-medium">{{ $partida->apostas_count }}</dd>
                     </div>
                 </dl>
+
+                @can('update', $partida)
+                    <div class="mt-6">
+                        <a href="{{ route('partidas.edit', $partida) }}" class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
+                            Editar partida
+                        </a>
+                    </div>
+                @endcan
             </div>
         </div>
     </div>

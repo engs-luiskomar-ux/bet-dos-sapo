@@ -14,9 +14,13 @@ class PartidaPolicy
 
     public function update(User $user, Partida $partida): bool
     {
+        $temApostas = array_key_exists('apostas_count', $partida->getAttributes())
+            ? $partida->apostas_count > 0
+            : $partida->apostas()->exists();
+
         return $this->create($user)
             && $partida->estaAgendada()
-            && ! $partida->apostas()->exists();
+            && ! $temApostas;
     }
 
     public function delete(User $user, Partida $partida): bool
