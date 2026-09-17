@@ -82,4 +82,15 @@ class PartidaController extends Controller
             ->route('partidas.show', $partida)
             ->with('success', 'Partida atualizada com sucesso.');
     }
+
+    public function destroy(Partida $partida): RedirectResponse
+    {
+        Gate::authorize('delete', $partida);
+
+        $partida->delete();
+
+        return redirect()
+            ->route('partidas.index')
+            ->with('success', 'Partida excluída com sucesso.');
+    }
 }

@@ -42,13 +42,24 @@
                     </div>
                 </dl>
 
-                @can('update', $partida)
-                    <div class="mt-6">
+                <div class="mt-6 flex items-center gap-4">
+                    @can('update', $partida)
                         <a href="{{ route('partidas.edit', $partida) }}" class="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white">
                             Editar partida
                         </a>
-                    </div>
-                @endcan
+                    @endcan
+
+                    @can('delete', $partida)
+                        <form method="POST" action="{{ route('partidas.destroy', $partida) }}"
+                              onsubmit="return confirm('Deseja excluir esta partida?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white">
+                                Excluir partida
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>

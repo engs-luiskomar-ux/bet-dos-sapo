@@ -15,6 +15,10 @@
 
     <div class="py-8">
         <div class="mx-auto max-w-6xl space-y-4 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="rounded-md bg-green-100 p-4 text-green-800">{{ session('success') }}</div>
+            @endif
+
             @if ($errors->any())
                 <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
                     <ul class="list-inside list-disc space-y-1">
@@ -94,6 +98,15 @@
                                     @can('update', $partida)
                                         <a href="{{ route('partidas.edit', $partida) }}"
                                            class="ml-3 text-green-700 hover:underline">Editar</a>
+                                    @endcan
+                                    @can('delete', $partida)
+                                        <form method="POST" action="{{ route('partidas.destroy', $partida) }}"
+                                              class="ml-3 inline"
+                                              onsubmit="return confirm('Deseja excluir esta partida?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-700 hover:underline">Excluir</button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>
